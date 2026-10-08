@@ -1,0 +1,12 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+*.duckdb
+.streamlit/secrets.toml
+# data files are large and regenerable
+data/*.csv
+data/*.parquet
+data/*.json
+!data/.gitkeep
+smoke_test.py
