@@ -5,6 +5,7 @@ Six tabs, no API keys, any file size.
 
 from __future__ import annotations
 
+import os
 import tempfile
 from pathlib import Path
 
@@ -45,9 +46,18 @@ st.caption(
     "DuckDB's columnar format, so a 500,000-row CSV profiles in under a second."
 )
 
+# Reading an arbitrary path off the host is fine on your own machine and a file-disclosure
+# hole once the app is reachable from the internet. Off by default; opt in locally with
+# DATASTUDIO_ALLOW_LOCAL_PATHS=1.
+ALLOW_LOCAL_PATHS = os.getenv("DATASTUDIO_ALLOW_LOCAL_PATHS", "0") == "1"
+
 up = st.file_uploader("Upload CSV, Parquet, JSON or Excel",
                       type=["csv", "parquet", "json", "xlsx", "xls"])
-typed = st.text_input("…or paste a path to a file on disk", placeholder=r"C:\data\file.csv")
+
+typed = ""
+if ALLOW_LOCAL_PATHS:
+    typed = st.text_input("…or paste a path to a file on disk", placeholder=r"C:\data\file.csv")
+    st.caption("Local-path loading is enabled. This is disabled on the public deployment.")
 
 path = None
 if up is not None:
