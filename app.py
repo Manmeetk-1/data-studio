@@ -51,8 +51,19 @@ st.caption(
 # DATASTUDIO_ALLOW_LOCAL_PATHS=1.
 ALLOW_LOCAL_PATHS = os.getenv("DATASTUDIO_ALLOW_LOCAL_PATHS", "0") == "1"
 
-up = st.file_uploader("Upload CSV, Parquet, JSON or Excel",
-                      type=["csv", "parquet", "json", "xlsx", "xls"])
+SAMPLE = Path(__file__).parent / "samples" / "consumer_complaints_sample.csv"
+
+col_up, col_demo = st.columns([3, 1])
+with col_up:
+    up = st.file_uploader("Upload CSV, Parquet, JSON or Excel",
+                          type=["csv", "parquet", "json", "xlsx", "xls"])
+with col_demo:
+    st.write("")
+    st.write("")
+    if SAMPLE.exists() and st.button("Load sample dataset", use_container_width=True):
+        st.session_state["use_sample"] = True
+    if st.session_state.get("use_sample") and st.button("Clear", use_container_width=True):
+        st.session_state["use_sample"] = False
 
 typed = ""
 if ALLOW_LOCAL_PATHS:
@@ -64,12 +75,21 @@ if up is not None:
     tmp = Path(tempfile.gettempdir()) / up.name
     tmp.write_bytes(up.getbuffer())
     path = str(tmp)
+    st.session_state["use_sample"] = False
+elif st.session_state.get("use_sample") and SAMPLE.exists():
+    path = str(SAMPLE)
 elif typed.strip():
     path = typed.strip()
 
 if not path:
-    st.info("Give it a file to begin.")
+    st.info(
+        "Upload a file, or press **Load sample dataset** to try it on 5,000 real consumer "
+        "complaints (CFPB) — 13 columns, two date fields, and some genuine data-quality problems."
+    )
     st.stop()
+
+if path == str(SAMPLE):
+    st.caption("Sample: 5,000 US consumer finance complaints. Try the Quality tab first.")
 
 try:
     store = load(path)

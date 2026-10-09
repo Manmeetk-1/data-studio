@@ -1,4 +1,4 @@
-.venv/
+﻿.venv/
 .env
 __pycache__/
 *.pyc
@@ -10,3 +10,6 @@ data/*.parquet
 data/*.json
 !data/.gitkeep
 smoke_test.py
+
+# sample data IS committed so the live demo has something to open
+!samples/
